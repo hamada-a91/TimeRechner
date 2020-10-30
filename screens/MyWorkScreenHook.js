@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, FlatList, Button, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
+import { StyleSheet, View, Text, FlatList, Button, TouchableOpacity, ScrollView, SafeAreaView, LogBox } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage'
 
 import Picker1 from '../components/Picker1';
@@ -102,7 +102,6 @@ function MyWorkScreen({ route, navigation }) {
             </TouchableOpacity>
         );
     }
-
     return (
 
         <View >
@@ -113,7 +112,9 @@ function MyWorkScreen({ route, navigation }) {
                     <Text style={{ marginTop: 15, marginLeft: 10, color: '#fff', fontWeight: 'bold', fontSize: 15 }}>summe:
                       </Text>
                     <Text style={{ marginTop: 15, marginLeft: 10, color: 'yellow', fontWeight: 'bold', fontSize: 15 }}>
-                        {new Date(summ * 1000).toISOString().substr(11, 5)}</Text>
+                        {(summ / 3600).toString().slice(0, 5)}</Text>
+                    <Text style={{ marginTop: 18, marginLeft: 10, color: 'yellow', fontWeight: '200', fontSize: 12 }}>Stunden
+                      </Text>
                 </View>
             </View>
             <View style={styles.listWrapper}>

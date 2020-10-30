@@ -1,12 +1,18 @@
 
 import React, { Component } from 'react';
-import { StyleSheet, View, Text, Button, TouchableOpacity, Alert, ScrollView, FlatList, Dimensions } from 'react-native';
+import { StyleSheet, View, Text, Button, ImageBackground, TouchableOpacity, Alert, ScrollView, FlatList, Dimensions } from 'react-native';
 import moment from 'moment';
 import AsyncStorage from '@react-native-community/async-storage'
 import TimeView from '../components/TimeView';
 import TimerButtons from '../components/TimerButtons';
+import BackgroundTimer from 'react-native-background-timer';
 
 const { width, height } = Dimensions.get('window');
+const intervalId = BackgroundTimer.setInterval(() => {
+    // this will be executed every 200 ms
+    // even when app is the the background
+    console.log('tic');
+}, 200);
 
 export default class TimerScreen extends Component {
 
@@ -103,7 +109,11 @@ export default class TimerScreen extends Component {
         clearInterval(this.timerId)
         this.setState({
             running: false,
-            time: 0
+            time: 0,
+            breaking: [],
+            timebreak: null,
+            currentTimeBreak: null
+
         })
     }
     handlePause = () => {
@@ -126,7 +136,7 @@ export default class TimerScreen extends Component {
             breakTime = this.state.timeBreak;
         }
         let breaking = this.state.breaking;
-        let date = this.dateNow();
+        let date = "30/09/2020";
         let startTime = this.timeNow();
         let endTime = this.timeNow();
         if (worktime) {
@@ -179,33 +189,35 @@ export default class TimerScreen extends Component {
     render() {
         return (
             <View style={styles.container}>
-                <Text style={styles.header}>Meine Arbeit</Text>
-                <TimeView time={this.state.time} />
-                <TimerButtons play={this.handlePlay}
-                    running={this.state.running}
-                    reset={this.handleReset}
-                    pause={this.handlePause}
-                    color={"orange"} />
-                {this.state.break ? <Text style={styles.header}>My Break</Text>
-                    : null}
-                {this.state.break ?
-                    <TimeView time={this.state.currentTimeBreak} /> : null}
-                {this.state.time ? <TouchableOpacity style={styles.buttonStyle} onPress={this.endJob}>
-                    <Text style={styles.buttonText}>Arbeit fertig</Text>
-                </TouchableOpacity> : null}
-                {this.state.breaking ? <ScrollView style={{
-                    height: 199, width: width - 35, borderRadius: 150,
-                    shadowOpacity: 100,
-                }}>
-                    <FlatList
-                        data={this.state.breaking}
-                        renderItem={({ item, index }) => this.renderItem(item, index)}
-                        keyExtractor={(item) => item.startTime}
-                        ItemSeparatorComponent={() => this.separator()} />
+                <ImageBackground source={require("../assets/images/doegel2.jpg")} style={styles.image}>
+                    <Text style={styles.header}>Meine Arbeit</Text>
+                    <TimeView time={this.state.time} />
+                    <TimerButtons play={this.handlePlay}
+                        running={this.state.running}
+                        reset={this.handleReset}
+                        pause={this.handlePause}
+                        color={"orange"} />
+                    {this.state.break ? <Text style={styles.header}>Meine Pause</Text>
+                        : null}
+                    {this.state.break ?
+                        <TimeView time={this.state.currentTimeBreak} /> : null}
+                    {this.state.time ? <TouchableOpacity style={styles.buttonStyle} onPress={this.endJob}>
+                        <Text style={styles.buttonText}>Arbeit fertig</Text>
+                    </TouchableOpacity> : null}
+                    {this.state.breaking ? <ScrollView style={{
+                        height: 199, width: width - 35, borderRadius: 150,
+                        shadowOpacity: 100,
+                    }}>
+                        <FlatList
+                            data={this.state.breaking}
+                            renderItem={({ item, index }) => this.renderItem(item, index)}
+                            keyExtractor={(item) => item.startTime}
+                            ItemSeparatorComponent={() => this.separator()} />
 
-                </ScrollView> : null
+                    </ScrollView> : null
 
-                }
+                    }
+                </ImageBackground>
 
             </View>
         );
@@ -216,17 +228,27 @@ export default class TimerScreen extends Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
+        flexDirection: 'column'
+
+
+    },
+    image: {
+        flex: 1,
+        resizeMode: "cover",
+        justifyContent: "center",
         justifyContent: 'center',
         alignItems: 'center',
-
+        opacity: 10,
     },
     header: {
         fontSize: 30,
         fontWeight: '700',
         color: '#ff6600',
         marginBottom: 10,
-        padding: 5
+        padding: 5,
+        textShadowColor: 'rgba(120, 30, 0, 0.75)',
+        textShadowOffset: { width: -1, height: 1 },
+        textShadowRadius: 10
     },
     buttonStyle: {
         alignItems: "center",
@@ -242,11 +264,11 @@ const styles = StyleSheet.create({
     buttonText: {
         color: "white",
         fontSize: 25,
-        fontWeight: "300",
+        fontWeight: "700",
     },
     listWrapper: {
         marginTop: '5%',
-        backgroundColor: '#008ae6',
+        backgroundColor: '#ff6600',
         flexDirection: 'row',
         flexWrap: 'wrap',
         shadowOpacity: 5,
@@ -254,7 +276,7 @@ const styles = StyleSheet.create({
     },
     row: {
         marginLeft: '1%',
-        backgroundColor: '#008ae6',
+        backgroundColor: '#ff6600',
         width: 80,
         fontSize: 16,
         fontWeight: 'bold',
@@ -264,16 +286,16 @@ const styles = StyleSheet.create({
     },
     rowB: {
         marginLeft: '1%',
-        backgroundColor: '#008ae6',
+        backgroundColor: '#ff6600',
         width: 80,
         fontSize: 16,
         fontWeight: 'bold',
-        color: '#ffcc80',
+        color: 'pink',
         borderRadius: 15,
         paddingVertical: 15,
     },
     row1: {
-        backgroundColor: '#008ae6',
+        backgroundColor: '#ff6600',
         width: 95,
         fontSize: 16,
         fontWeight: 'bold',

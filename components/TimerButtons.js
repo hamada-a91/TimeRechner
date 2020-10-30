@@ -25,7 +25,7 @@ class TimerButtons extends Component {
             return (
                 <View style={styles.container}>
                     <TouchableOpacity style={styles.buttonStyle} onPress={this.props.play}>
-                        <Text style={styles.buttonText}>arbeiten</Text>
+                        <Text style={styles.buttonText}>starten</Text>
                     </TouchableOpacity>
                 </View>
             )
