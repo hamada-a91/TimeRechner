@@ -20,7 +20,7 @@ export default class HomeScreen extends Component {
     render() {
         return (
             <View style={styles.container}>
-                <Text style={styles.title} >WD Rechner</Text>
+                <Text style={styles.title} >Working Timer</Text>
                 <Image style={styles.image} source={require("../assets/images/doegel.jpg")}   ></Image>
 
                 <Animatable.View

@@ -4,57 +4,57 @@ import AsyncStorage from '@react-native-community/async-storage'
 
 import Picker1 from '../components/Picker1';
 
-import * as BackgroundFetch from "expo-background-fetch";
-import * as TaskManager from "expo-task-manager";
+// import * as BackgroundFetch from "expo-background-fetch";
+// import * as TaskManager from "expo-task-manager";
 
-let setStateFn = (data) => {
-    console.log("State not yet initialized");
-    return (data)
-};
+// let setStateFn = (data) => {
+//     console.log("State not yet initialized");
+//     return (data)
+// };
 
-function myTask() {
-    try {
-        // fetch data here...
-        var d = 1;
-        this.timerId = setInterval(() => {
-            d = d + 1;
-        }, 10);
-        const backendData = "Simulated fetch " + d;
-        this.timerId = setInterval(() => {
-            d = d + 1;
-        }, 1000);
-        console.log("myTask() ", backendData);
-        setStateFn(backendData);
-        return backendData
-            ? BackgroundFetch.Result.NewData
-            : BackgroundFetch.Result.NoData;
-    } catch (err) {
-        return BackgroundFetch.Result.Failed;
-    }
-}
-async function initBackgroundFetch(taskName,
-    taskFn,
-    interval = 60) {
-    try {
-        if (!TaskManager.isTaskRegisteredAsync(taskName)) {
-            TaskManager.defineTask(taskName, taskFn);
-        }
-        TaskManager.defineTask(taskName, taskFn);
-
-
+// function myTask() {
+//     try {
+//         // fetch data here...
+//         var d = 1;
+//         this.timerId = setInterval(() => {
+//             d = d + 1;
+//         }, 10);
+//         const backendData = "Simulated fetch " + d;
+//         this.timerId = setInterval(() => {
+//             d = d + 1;
+//         }, 1000);
+//         console.log("myTask() ", backendData);
+//         setStateFn(backendData);
+//         return backendData
+//             ? BackgroundFetch.Result.NewData
+//             : BackgroundFetch.Result.NoData;
+//     } catch (err) {
+//         return BackgroundFetch.Result.Failed;
+//     }
+// }
+// async function initBackgroundFetch(taskName,
+//     taskFn,
+//     interval = 60) {
+//     try {
+//         if (!TaskManager.isTaskRegisteredAsync(taskName)) {
+//             TaskManager.defineTask(taskName, taskFn);
+//         }
+//         TaskManager.defineTask(taskName, taskFn);
 
 
-        const options = {
-            minimumInterval: interval // in seconds
-        };
-        await BackgroundFetch.registerTaskAsync(taskName, options);
-        initBackgroundFetch('myTaskName', myTask, 1);
 
-    } catch (err) {
-        console.log("registerTaskAsync() failed:", err);
-    }
-}
-initBackgroundFetch('myTaskName', myTask);
+
+//         const options = {
+//             minimumInterval: interval // in seconds
+//         };
+//         await BackgroundFetch.registerTaskAsync(taskName, options);
+//         initBackgroundFetch('myTaskName', myTask, 1);
+
+//     } catch (err) {
+//         console.log("registerTaskAsync() failed:", err);
+//     }
+// }
+// initBackgroundFetch('myTaskName', myTask);
 
 const currentYear1 = new Date().getFullYear().toString();
 const currenMonth = new Date().getMonth().toString();
@@ -70,20 +70,13 @@ function MyWorkScreen({ route, navigation }) {
 
 
 
-    const [state, setState] = useState(null);
 
 
     useEffect(() => {
 
         const unsubscribe = navigation.addListener('focus', () => {
             retrieveData();
-
-            //setmonth('')
         });
-        setState(setStateFn)
-        console.log("stata")
-        console.log(state)
-
 
     }, []
 
