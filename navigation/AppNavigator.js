@@ -59,7 +59,7 @@ function WorkStack() {
             }}
         >
             <Stack.Screen
-                name="MyWorkScreen"
+                name="MyWorkScreen1"
                 component={MyWorkScreen}
                 options={{ headerShown: false }}
             />
@@ -139,7 +139,7 @@ export default function AppNavigator() {
     }
     const [loginState, dispatch] = React.useReducer(loginReducer, initialLoginState);
     const _retrieveData = async () => {
-        let value = await AsyncStorage.getItem('2');
+        let value = await AsyncStorage.getItem('user');
         if (value !== null) {
             value = JSON.parse(value);
             setUser(value)
@@ -155,9 +155,11 @@ export default function AppNavigator() {
             -_retrieveData();
             //userName = null;
             const foundUser = user.filter(item => {
+
                 return userName == item.username && password == item.password;
 
             });
+            console.log("founduser" + foundUser)
             if (foundUser.length >= 1) {
                 dispatch({ type: 'LOGIN', id: userName, token: userName, lod: false });
 
@@ -165,7 +167,7 @@ export default function AppNavigator() {
             else {
                 dispatch({ type: 'LOGIN', id: null, token: null, lod: false });
 
-                Alert.alert('type Fehler', 'username oder Passwort ist leerrr', [
+                Alert.alert('Fehler', 'username oder Passwort ist falsch', [
                     { text: 'okay' }
                 ]);
                 return;
@@ -180,7 +182,8 @@ export default function AppNavigator() {
             }
             dispatch({ type: 'LOGOUT' })
         },
-        signUp: (username) => {
+        signUp: (username, password) => {
+
             dispatch({ type: 'REGISTER', token: username, id: username })
         },
 

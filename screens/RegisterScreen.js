@@ -2,7 +2,7 @@ import React, { Component, useEffect, useContext, useState } from 'react';
 import {
     View,
     Text,
-    Button,
+    Alert,
     TouchableOpacity,
     Dimensions,
     TextInput,
@@ -75,7 +75,7 @@ const RegisterScreen = ({ navigation }) => {
         console.log(u)
         try {
 
-            await AsyncStorage.setItem('2', JSON.stringify(user))
+            await AsyncStorage.setItem('user', JSON.stringify(user))
             console.log("undata")
         } catch (e) {
             console.log(e)
@@ -85,7 +85,7 @@ const RegisterScreen = ({ navigation }) => {
 
         try {
 
-            await AsyncStorage.setItem('2', JSON.stringify(u))
+            await AsyncStorage.setItem('user', JSON.stringify(u))
             console.log("successe")
             console.log(user)
 
@@ -95,7 +95,7 @@ const RegisterScreen = ({ navigation }) => {
         }
     }
     const _retrieveData = async () => {
-        let value = await AsyncStorage.getItem('2');
+        let value = await AsyncStorage.getItem('user');
         if (value !== null) {
             value = JSON.parse(value);
             setuser(value)
@@ -103,14 +103,26 @@ const RegisterScreen = ({ navigation }) => {
             console.log(user)
         }
     }
-    const halndeRegister = async (username, password) => {
+    const halndeRegister = (username, password) => {
         let users = user;
-        if (username !== null && password !== null) {
+        if (username !== '' && password !== '') {
+            if (username.length < 4 || password.length < 7) {
+                Alert.alert('type Fehler', 'username muss mehr als 4 Buchstaben und Password mehr als 8', [
+                    { text: 'okay' }
+                ]);
+                return;
+            }
             users.unshift({ username, password })
             setuser(users)
             _storData(users)
+            signUp(username, password)
         }
-        signUp(username, password)
+        else {
+            Alert.alert('type Fehler', 'username oder Passwort ist leerrr', [
+                { text: 'okay' }
+            ]);
+
+        }
 
 
 

@@ -13,7 +13,6 @@ export default class HomeScreen extends Component {
 
     timeNow() {
         var date = moment()
-            .utcOffset('+01:00')
             .format(' HH:mm ');
         return date;
     }

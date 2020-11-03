@@ -1,18 +1,13 @@
 
 import React, { Component } from 'react';
-import { StyleSheet, View, Text, Button, ImageBackground, TouchableOpacity, Alert, ScrollView, FlatList, Dimensions } from 'react-native';
+import { StyleSheet, View, Text, AppState, ImageBackground, TouchableOpacity, Alert, ScrollView, FlatList, Dimensions } from 'react-native';
 import moment from 'moment';
 import AsyncStorage from '@react-native-community/async-storage'
 import TimeView from '../components/TimeView';
 import TimerButtons from '../components/TimerButtons';
-import BackgroundTimer from 'react-native-background-timer';
 
 const { width, height } = Dimensions.get('window');
-const intervalId = BackgroundTimer.setInterval(() => {
-    // this will be executed every 200 ms
-    // even when app is the the background
-    console.log('tic');
-}, 200);
+
 
 export default class TimerScreen extends Component {
 
@@ -27,11 +22,13 @@ export default class TimerScreen extends Component {
             currentTimeBreak: null,
             break: false,
             working: [],
-            breaking: [
-            ],
+            breaking: [],
+            appState: AppState.currentState,
+            timebackground: null,
 
         }
     }
+
 
     _storeDate(working) {
         AsyncStorage.setItem('WORKING11', JSON.stringify(working)).then(res => {
@@ -49,8 +46,7 @@ export default class TimerScreen extends Component {
                 [
 
                     {
-                        text: "OK", onPress: () => this.props.navigation.navigate("MyWorkScreen",
-                            { working1: this.state.working })
+                        text: "OK", onPress: () => this.props.navigation.navigate("MyWork")
                     }
                 ],
                 { cancelable: false }
@@ -65,7 +61,7 @@ export default class TimerScreen extends Component {
         }
     }
     timeNow() {
-        var time = moment().utcOffset('+02:00')
+        var time = moment()
             .format('HH:mm:ss');
         return time
     }
@@ -74,8 +70,44 @@ export default class TimerScreen extends Component {
             .format('DD/MM/YYYY ');
         return date
     }
+
+    _handleAppStateChange = nextAppState => {
+        if (
+            this.state.appState.match(/inactive|background/) &&
+            nextAppState === "active"
+        ) {
+            console.log("App has come to the foreground!");
+            let timenow = moment();
+            let diff = Math.round(timenow.diff(this.state.timebackground) / 1000);
+            if (this.state.running) {
+                let plus = this.state.time + diff;
+                this.setState({ time: plus })
+            }
+            if (this.state.break) {
+                let plus = this.state.currentTimeBreak + diff;
+                this.setState({ currentTimeBreak: plus })
+
+            }
+        }
+        if (
+            this.state.appState.match(/inactive|active/) &&
+            nextAppState === "background"
+
+        ) {
+            console.log("App has come to the background!");
+            this.setState({ timebackground: moment() });
+        }
+        this.setState({ appState: nextAppState });
+        console.log(this.state.appState)
+    };
+
     componentDidMount() {
         this._retrieveData();
+        AppState.addEventListener("change", this._handleAppStateChange);
+
+    }
+    componentWillUnmount() {
+        AppState.removeEventListener("change", this._handleAppStateChange);
     }
     handlePlay = () => {
         this.setState({
@@ -136,7 +168,7 @@ export default class TimerScreen extends Component {
             breakTime = this.state.timeBreak;
         }
         let breaking = this.state.breaking;
-        let date = "30/09/2020";
+        let date = this.dateNow();
         let startTime = this.timeNow();
         let endTime = this.timeNow();
         if (worktime) {

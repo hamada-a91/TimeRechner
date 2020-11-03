@@ -1,26 +1,89 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, FlatList, Button, TouchableOpacity, ScrollView, SafeAreaView, LogBox } from 'react-native';
+import { StyleSheet, View, Text, FlatList, Button, TouchableOpacity, ScrollView, SafeAreaView, TextInput } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage'
 
 import Picker1 from '../components/Picker1';
+
+import * as BackgroundFetch from "expo-background-fetch";
+import * as TaskManager from "expo-task-manager";
+
+let setStateFn = (data) => {
+    console.log("State not yet initialized");
+    return (data)
+};
+
+function myTask() {
+    try {
+        // fetch data here...
+        var d = 1;
+        this.timerId = setInterval(() => {
+            d = d + 1;
+        }, 10);
+        const backendData = "Simulated fetch " + d;
+        this.timerId = setInterval(() => {
+            d = d + 1;
+        }, 1000);
+        console.log("myTask() ", backendData);
+        setStateFn(backendData);
+        return backendData
+            ? BackgroundFetch.Result.NewData
+            : BackgroundFetch.Result.NoData;
+    } catch (err) {
+        return BackgroundFetch.Result.Failed;
+    }
+}
+async function initBackgroundFetch(taskName,
+    taskFn,
+    interval = 60) {
+    try {
+        if (!TaskManager.isTaskRegisteredAsync(taskName)) {
+            TaskManager.defineTask(taskName, taskFn);
+        }
+        TaskManager.defineTask(taskName, taskFn);
+
+
+
+
+        const options = {
+            minimumInterval: interval // in seconds
+        };
+        await BackgroundFetch.registerTaskAsync(taskName, options);
+        initBackgroundFetch('myTaskName', myTask, 1);
+
+    } catch (err) {
+        console.log("registerTaskAsync() failed:", err);
+    }
+}
+initBackgroundFetch('myTaskName', myTask);
+
+const currentYear1 = new Date().getFullYear().toString();
+const currenMonth = new Date().getMonth().toString();
 
 
 function MyWorkScreen({ route, navigation }) {
     const [working, setWorking] = useState();
     const [dataSource, setdataSource] = useState();
     const [res, setRes] = useState();
-    const [month, setmonth] = useState();
+    const [month, setmonth] = useState(currenMonth);
     const [summ, setsumm] = useState(0);
+    const [year, setyear] = useState(currentYear1);
+
+
+
+    const [state, setState] = useState(null);
+
 
     useEffect(() => {
 
         const unsubscribe = navigation.addListener('focus', () => {
             retrieveData();
-            // if (dataSource) {
-            //     setsumm(summing(dataSource))
 
-            // }
+            //setmonth('')
         });
+        setState(setStateFn)
+        console.log("stata")
+        console.log(state)
+
 
     }, []
 
@@ -28,36 +91,40 @@ function MyWorkScreen({ route, navigation }) {
 
     useEffect(() => {
 
+        filter()
+
+    }, [month, year]
+
+    );
+    const filter = () => {
+        console.log("filter aufrufen")
+
         console.log(month)
         let currentYear = new Date().getFullYear()
         if (working) {
             let event = working.filter(e => {
-                if (month === '') {
-                    return e
+                if (month === "0") {
+                    var dateStr = year;
+                    return (e.date.indexOf(dateStr) !== -1)
                 } else {
-                    var dateStr = month + '/' + currentYear;
-                    console.log(dateStr)
+                    var dateStr = month + '/' + year;
+                    //  console.log(dateStr)
                     return (e.date.indexOf(dateStr) !== -1)
                 }
             });
-            console.log(event);
+            //console.log(event);
             setdataSource(event)
 
             if (event.length != 0) {
-                console.log('null Array')
-
                 setsumm(summing(event))
-                console.log(summing(event))
+                // console.log(summing(event))
 
 
             } else {
                 setsumm(0)
             }
         }
-
-    }, [month]
-
-    );
+    }
 
     const retrieveData = async () => {
         let value = await AsyncStorage.getItem('WORKING11');
@@ -65,7 +132,9 @@ function MyWorkScreen({ route, navigation }) {
             value = JSON.parse(value);
             setWorking(value);
             setdataSource(value);
+            filter();
             console.log("success");
+            console.log(value)
             setRes(true)
             setsumm(summing(value))
 
@@ -90,10 +159,15 @@ function MyWorkScreen({ route, navigation }) {
             <View style={{ height: 4, width: '100%', backgroundColor: '#e5e5e5' }}></View>
         )
     }
+    const textInputChange = (val) => {
+        setyear(val)
+    }
 
     const renderItem = item => {
         return (
-            <TouchableOpacity onPress={() => navigation.navigate("BreakScreen", { breaking: item.breaking })} style={styles.listWrapper} >
+            <TouchableOpacity onPress={() => {
+                navigation.navigate("BreakScreen", { breaking: item.breaking })
+            }} style={styles.listWrapper} >
                 <Text style={styles.row} >{new Date(item.worktime * 1000).toISOString().substr(11, 8)}</Text>
                 <Text style={styles.row} >{new Date(item.breakTime * 1000).toISOString().substr(11, 8)}</Text>
                 <Text style={styles.row1} >{item.startTime}</Text>
@@ -108,6 +182,14 @@ function MyWorkScreen({ route, navigation }) {
             <View style={styles.header}>
                 <Text style={styles.headerTitle}>Meine Arbeitsunde</Text>
                 <View style={{ flexDirection: 'row' }}>
+                    <TextInput
+                        //   placehlder={currentYear1}
+                        placeholder={currentYear1}
+                        keyboardType="numeric"
+                        style={styles.textInput}
+                        onChangeText={(val) => textInputChange(val)}
+                    />
+
                     <Picker1 month={handleMonth} />
                     <Text style={{ marginTop: 15, marginLeft: 10, color: '#fff', fontWeight: 'bold', fontSize: 15 }}>summe:
                       </Text>
@@ -195,7 +277,7 @@ const styles = StyleSheet.create({
         width: 100,
         fontSize: 15,
         fontWeight: 'bold',
-        color: '#e6005c',
+        color: '#ff6600',
         paddingHorizontal: 2,
         paddingVertical: 20,
     },
@@ -207,6 +289,13 @@ const styles = StyleSheet.create({
         fontWeight: '200',
         paddingHorizontal: 2,
         //  paddingVertical: 30,
-    }
+    },
+    textInput: {
+        fontSize: 15,
+        fontWeight: 'bold',
+        marginTop: 10,
+        marginRight: 10,
+        width: 40,
+    },
 });
 export default MyWorkScreen;

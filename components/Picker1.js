@@ -4,9 +4,9 @@ import { StyleSheet, Picker, View, Text, FlatList, Button, TouchableOpacity, Scr
 
 
 const Picker1 = props => {
-    const currentMonth = (new Date().getMonth() + 1)
+    const currenMonth = new Date().getMonth().toString();
 
-    const [selectedValue, setSelectedValue] = useState('');
+    const [selectedValue, setSelectedValue] = useState(currenMonth);
 
     useEffect(() => {
         props.month(selectedValue)
@@ -18,10 +18,11 @@ const Picker1 = props => {
         <View>
             <Picker
                 selectedValue={selectedValue}
+                mode='dropdown'
                 style={{ height: 23, marginTop: 15, width: 150, color: '#fff' }}
                 onValueChange={(itemValue, itemIndex) => setSelectedValue(itemValue)}
             >
-                <Picker.Item label="all" value="" />
+                <Picker.Item label="all" value="0" />
                 <Picker.Item label="Januer" value="01" />
                 <Picker.Item label="Febreur" value='02' />
                 <Picker.Item label="März" value="03" />
